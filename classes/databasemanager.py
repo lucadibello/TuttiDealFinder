@@ -139,7 +139,7 @@ class DatabaseManager:
         self.DATABASE_CON.commit()
 
     def get_deal_by_tracker(self,tracker_id):
-        query_string = "SELECT * FROM {} WHERE tracker_id = {}".format(self.DEAL_TABLE,tracker_id)
+        query_string = "SELECT * FROM {} WHERE tracker_id = {}".format(self.DEAL_TABLE, tracker_id)
 
         deals = []
         for deal in self.prepare(query_string).fetchall():
