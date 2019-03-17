@@ -3,12 +3,15 @@
 #
 
 # imports
+
+# TODO: Refresh every a certain timespan
+
 import argparse
 from classes.databasemanager import DatabaseManager
 from classes.webscraper import WebScraper
-from classes.deal import Deal
-from classes.tracker import Tracker
-import json
+from classes.telegrambot import TelegramBot
+import threading
+import time
 
 # Debugging
 from pprint import pprint
@@ -66,6 +69,14 @@ parser.add_argument(
     help="clear all tracked research"
 )
 
+
+parser.add_argument(
+    '--clear-users',
+    dest="clear_users",
+    action="store_true",
+    help="clear all tracked research"
+)
+
 parser.add_argument(
     '--refresh',
     dest="refresh",
@@ -92,9 +103,17 @@ parser.add_argument(
 args = parser.parse_args()
 db = DatabaseManager()
 scraper = WebScraper()
-
+bot = TelegramBot(db)
 
 def main():
+    global bot
+
+    if args.telegram:
+        # wait until the telegram bot is started
+
+        while not bot.bot_status:
+            time.sleep(0.5)
+        print("[Success] Bot and application are in sync")
 
     if len(args.name) > 0 and len(args.url) > 0:
         # SAVE TRACKER IN DATABASE
@@ -129,6 +148,11 @@ def main():
         result = db.clear_deals()
         print("Removed {} deal(s) from database".format(result.rowcount))
 
+    if args.clear_users:
+        # Delete all saved Users
+        result = db.clear_users()
+        print("Removed {} user(s) from database".format(result.rowcount))
+
     if args.refresh:
         trackers = db.get_trackers()
 
@@ -146,6 +170,8 @@ def main():
                 for deal in new:
                     db.add_deal(deal)
 
+                    if bot.bot_status:
+                        bot.send_broadcast(bot.deal_text_generator(deal))
                 print("[Info] Added in dictionary {} new deal(s)".format(len(new)))
 
 
@@ -167,4 +193,14 @@ def new_deals(old, new):
         print("[Info] No saved deals detected")
         return new
 
-main()
+
+if args.telegram:
+    # create thread
+    t1 = threading.Thread(target=main)
+
+    # start thread
+    t1.start()
+
+    bot.start_bot()
+else:
+    main()

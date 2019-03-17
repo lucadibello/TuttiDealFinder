@@ -2,6 +2,7 @@ import mysql.connector
 from config.params import Params
 from classes.deal import Deal
 from classes.tracker import Tracker
+from classes.user import User
 
 
 class DatabaseManager:
@@ -9,7 +10,7 @@ class DatabaseManager:
     # Table names
     TRACKER_TABLE = "tracker"
     DEAL_TABLE = "deal"
-    FOUND_TABLE = "found"
+    USER_TABLE = "user"
 
     def __init__(self):
         # Create connection
@@ -20,6 +21,7 @@ class DatabaseManager:
                 Params.DATABASE
         )
 
+    #BASE FUNCTIONS
     @staticmethod
     def connect_database(host, username, password, database):
         return mysql.connector.connect(
@@ -39,18 +41,7 @@ class DatabaseManager:
         # Return cursor
         return cursor
 
-    def add_tracker(self, name, url):
-        # Format query
-        query_string = "INSERT INTO {} VALUES(0,'{}','{}')".format(self.TRACKER_TABLE,url, name)
-
-        # Exec query
-        self.prepare(query_string)
-
-        # Commit changes to database
-        self.DATABASE_CON.commit()
-
-        print("[Success] Added new tracker")
-
+    #GENERIC FUNCTIONS
     def get_data(self, table_name):
         # Format query string
         query_string = "SELECT * FROM {}".format(table_name)
@@ -70,6 +61,19 @@ class DatabaseManager:
 
         # Return cursor
         return cursor
+
+    #TRACKER FUNCTIONS
+    def add_tracker(self, name, url):
+        # Format query
+        query_string = "INSERT INTO {} VALUES(0,'{}','{}')".format(self.TRACKER_TABLE,url, name)
+
+        # Exec query
+        self.prepare(query_string)
+
+        # Commit changes to database
+        self.DATABASE_CON.commit()
+
+        print("[Success] Added new tracker")
 
     def get_trackers(self):
         trackers = []
@@ -91,6 +95,7 @@ class DatabaseManager:
     def clear_trackers(self):
         return self.clear_data(self.TRACKER_TABLE)
 
+    #DEAL FUNCTIONS
     def get_deals(self):
         deals = []
         for deal in self.get_data(self.DEAL_TABLE):
@@ -155,3 +160,48 @@ class DatabaseManager:
         # Return deal object list
         return deals
 
+    #USER FUNCTIONS
+    def add_user(self, chat_id, notify_flag = True):
+        # Format query
+        query_string = "INSERT INTO {} VALUES({},'{}')".format(self.USER_TABLE, chat_id, (1 if notify_flag == True else 0))
+
+        # Exec query
+        self.prepare(query_string)
+
+        # Commit changes to database
+        self.DATABASE_CON.commit()
+
+    def get_users(self):
+        users = []
+        for user in self.get_data(self.USER_TABLE):
+            user = User(
+                user[0],
+                user[1]
+            )
+
+            users.append(user)
+
+        return users
+
+    def clear_users(self):
+        return self.clear_data(self.USER_TABLE)
+
+    def remove_user(self, user_id):
+        # Format query
+        query_string = 'DELETE FROM {} WHERE user_id = {}'.format(
+            self.USER_TABLE,
+            int(user_id),
+        )
+
+        print(query_string)
+
+        # Exec query
+        cursor = self.prepare(query_string)
+
+        # Commit changes to database
+        self.DATABASE_CON.commit()
+
+        print("[Success] Removed user from database")
+
+        # Return cursor
+        return cursor
