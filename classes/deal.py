@@ -1,6 +1,6 @@
 class Deal:
 
-    def __init__(self, deal_id, title, price, loc_city, loc_cap, date, url):
+    def __init__(self, title, price, loc_city, loc_cap, date, url,tracker_id,deal_id=0):
         self.id = deal_id
         self.title = title
         self.price = price
@@ -8,6 +8,7 @@ class Deal:
         self.loc_cap = loc_cap
         self.date = date
         self.url = url
+        self.tracker_id = tracker_id
 
     def to_dict(self):
         return {

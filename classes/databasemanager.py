@@ -1,6 +1,7 @@
 import mysql.connector
 from config.params import Params
 from classes.deal import Deal
+from classes.tracker import Tracker
 
 
 class DatabaseManager:
@@ -8,6 +9,7 @@ class DatabaseManager:
     # Table names
     TRACKER_TABLE = "tracker"
     DEAL_TABLE = "deal"
+    FOUND_TABLE = "found"
 
     def __init__(self):
         # Create connection
@@ -39,7 +41,7 @@ class DatabaseManager:
 
     def add_tracker(self, name, url):
         # Format query
-        query_string = "INSERT INTO {} VALUES(0,'{}','{}')".format(self.TRACKER_TABLE, url, name)
+        query_string = "INSERT INTO {} VALUES(0,'{}','{}')".format(self.TRACKER_TABLE,url, name)
 
         # Exec query
         self.prepare(query_string)
@@ -70,7 +72,21 @@ class DatabaseManager:
         return cursor
 
     def get_trackers(self):
-        return self.get_data(self.TRACKER_TABLE)
+        trackers = []
+        for tracker in self.get_data(self.TRACKER_TABLE):
+
+            # Create a deal object for each row
+            tracker = Tracker(
+                tracker[2],
+                tracker[1],
+                tracker[0]
+            )
+
+            # Add deal to the main list
+            trackers.append(tracker)
+
+        # Return deal object list
+        return trackers
 
     def clear_trackers(self):
         return self.clear_data(self.TRACKER_TABLE)
@@ -80,13 +96,14 @@ class DatabaseManager:
         for deal in self.get_data(self.DEAL_TABLE):
             # Create a deal object for each row
             deal = Deal(
-                deal[0],
-                deal[1],
                 deal[2],
                 deal[3],
                 deal[4],
                 deal[5],
-                deal[6]
+                deal[6],
+                deal[7],
+                deal[1],
+                deal[0]
             )
             # Add deal to the main list
             deals.append(deal)
@@ -96,3 +113,45 @@ class DatabaseManager:
 
     def clear_deals(self):
         return self.clear_data(self.DEAL_TABLE)
+
+    def add_deal(self, deal: Deal):
+        # Format query
+        query_string = 'INSERT INTO {} VALUES(0,{},"{}","{}","{}","{}","{}","{}")'.format(
+            self.DEAL_TABLE,
+            deal.tracker_id,
+            deal.title,
+            deal.price,
+            deal.loc_city,
+            deal.loc_cap,
+            deal.date,
+            deal.url
+        )
+
+        # Exec query
+        self.prepare(query_string)
+
+        # Commit changes to database
+        self.DATABASE_CON.commit()
+
+    def get_deal_by_tracker(self,tracker_id):
+        query_string = "SELECT * FROM {} WHERE tracker_id = {}".format(self.DEAL_TABLE,tracker_id)
+
+        deals = []
+        for deal in self.prepare(query_string).fetchall():
+            # Create a deal object for each row
+            deal = Deal(
+                deal[2],
+                deal[3],
+                deal[4],
+                deal[5],
+                deal[6],
+                deal[7],
+                deal[1],
+                deal[0]
+            )
+            # Add deal to the main list
+            deals.append(deal)
+
+        # Return deal object list
+        return deals
+

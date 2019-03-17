@@ -25,20 +25,14 @@ CREATE TABLE tracking_list(
 
 #TABELLA CHE TIENE IN MEMORIA TUTTE LE OFFERTE TROVATE
 CREATE TABLE deal(
-  id int PRIMARY KEY AUTO_INCREMENT,
+  id int AUTO_INCREMENT,
+  tracker_id int NOT NULL,
   title VARCHAR(50) NOT NULL,
-  price FLOAT,
+  price varchar(20) NOT NULL,
   location_city VARCHAR(50) NOT NULL,
   location_cap int(4) NOT NULL,
-  upload_date date NOT NULL,
-  url TEXT NOT NULL
-);
-
-#TABELLA CHE TIENE IN MEMORIA QUALE OFFERTA È STATA TROVATA CON QUALE TRACKER
-CREATE TABLE found(
-  tracker_id INT NOT NULL,
-  deal_id INT NOT NULL,
-  PRIMARY KEY (tracker_id,deal_id),
-  FOREIGN KEY (tracker_id) REFERENCES tracker(tracker_id),
-  FOREIGN KEY (deal_id) REFERENCES deal(id)
+  upload_date VARCHAR(50) NOT NULL,
+  url TEXT NOT NULL,
+  PRIMARY KEY (id,tracker_id),
+  FOREIGN KEY (tracker_id) REFERENCES tracker(tracker_id)
 );
