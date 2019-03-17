@@ -1,10 +1,11 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from classes.databasemanager import DatabaseManager
 from classes.deal import Deal
+from config.params import Params
 
 
 class TelegramBot:
-    TOKEN = "826136296:AAF1x8Lq581b5xzKP0WPnVYVmEGj7k31ILQ"
+    TOKEN = Params.TOKEN
     bot_status = False
 
     def __init__(self,database_manager: DatabaseManager):
