@@ -35,4 +35,5 @@ CREATE TABLE deal(
   url TEXT NOT NULL,
   PRIMARY KEY (id,tracker_id),
   FOREIGN KEY (tracker_id) REFERENCES tracker(tracker_id)
+  ON DELETE CASCADE
 );

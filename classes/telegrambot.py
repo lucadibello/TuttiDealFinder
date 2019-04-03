@@ -17,7 +17,7 @@ class TelegramBot:
 
     def start_bot(self):
 
-        updater = Updater(self.TOKEN, use_context=True)
+        updater = Updater(self.TOKEN)
 
         # Get the dispatcher to register handlers
         self.DP = updater.dispatcher
@@ -115,6 +115,7 @@ class TelegramBot:
                 print("[Info] New deals detected")
                 new.reverse()
                 new_deals = new[len(old):len(new)]
+                pprint(new_deals)
                 return new_deals
 
         else:
