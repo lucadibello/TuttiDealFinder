@@ -10,6 +10,7 @@ import argparse
 from classes.databasemanager import DatabaseManager
 from classes.webscraper import WebScraper
 from classes.telegrambot import TelegramBot
+from uuid import getnode as get_mac
 import threading
 import time
 
@@ -110,17 +111,16 @@ def main():
 
     if args.telegram:
         # wait until the telegram bot is started
-
         while not bot.bot_status:
             time.sleep(0.5)
         print("[Success] Bot and application are in sync")
 
     if len(args.name) > 0 and len(args.url) > 0:
         # SAVE TRACKER IN DATABASE
-
         print(args.url)
 
-        db.add_tracker(args.name, args.url)
+        mac_address = get_mac()
+        db.add_tracker(mac_address, args.name, args.url, 1)
 
     if args.list_trackers:
         # Prints all saved trackers

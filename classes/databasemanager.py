@@ -3,6 +3,7 @@ from config.params import Params
 from classes.deal import Deal
 from classes.tracker import Tracker
 from classes.user import User
+from pprint import pprint
 
 
 class DatabaseManager:
@@ -63,12 +64,12 @@ class DatabaseManager:
         return cursor
 
     #TRACKER FUNCTIONS
-    def add_tracker(self, name, url):
-        # Format query
-        query_string = "INSERT INTO {} VALUES(0,'{}','{}')".format(self.TRACKER_TABLE,url, name)
+    def add_tracker(self,identifier, name, url, desktop_flag):
+        #INSERT THE TRACKER IN THE DATABASE
+        query_string_first = "INSERT INTO {} VALUES({},'{}','{}','{}')".format(self.TRACKER_TABLE, 0, identifier, url, name)
 
         # Exec query
-        self.prepare(query_string)
+        self.prepare(query_string_first)
 
         # Commit changes to database
         self.DATABASE_CON.commit()
@@ -78,11 +79,13 @@ class DatabaseManager:
     def get_trackers(self):
         trackers = []
         for tracker in self.get_data(self.TRACKER_TABLE):
-
+            print("Name: ", tracker[3])
+            print("Url: ", tracker[2])
+            exit
             # Create a deal object for each row
             tracker = Tracker(
+                tracker[3],
                 tracker[2],
-                tracker[1],
                 tracker[0]
             )
 
@@ -91,7 +94,6 @@ class DatabaseManager:
 
         # Return deal object list
         return trackers
-
     def clear_trackers(self):
         return self.clear_data(self.TRACKER_TABLE)
 
@@ -138,8 +140,25 @@ class DatabaseManager:
         # Commit changes to database
         self.DATABASE_CON.commit()
 
+    def get_trackers_by_user_identifier(self, user_id):
+        trackers = []
+        query_string = "SELECT * FROM {} WHERE user_id = {}".format(self.TRACKER_TABLE, user_id)
+
+        for tracker in self.prepare(query_string).fetchall():
+            tracker = Tracker(
+                tracker[3],
+                tracker[2],
+                tracker[0]
+            )
+
+            # Add deal to the main list
+            trackers.append(tracker)
+
+        # Return deal object list
+        return trackers
+
     def get_deal_by_tracker(self,tracker_id):
-        query_string = "SELECT * FROM {} WHERE tracker_id = {}".format(self.DEAL_TABLE, tracker_id)
+        query_string = "SELECT * FROM {} WHERE user_id = {}".format(self.DEAL_TABLE, tracker_id)
 
         deals = []
         for deal in self.prepare(query_string).fetchall():
@@ -188,20 +207,27 @@ class DatabaseManager:
 
     def remove_user(self, user_id):
         # Format query
-        query_string = 'DELETE FROM {} WHERE user_id = {}'.format(
+        query_string = 'DELETE FROM {} WHERE chat_id = {}'.format(
             self.USER_TABLE,
             int(user_id),
         )
 
-        print(query_string)
+        query_string_second = 'DELETE FROM {} WHERE user_id = {}'.format(
+            self.TRACKER_TABLE,
+            int(user_id)
+        )
+
+        query_string_third = 'DELETE FROM {} WHERE user_id = {}'.format(
+            self.DEAL_TABLE,
+            int(user_id)
+        )
 
         # Exec query
-        cursor = self.prepare(query_string)
+        self.prepare(query_string)
+        self.prepare(query_string_second)
+        self.prepare(query_string_third)
 
         # Commit changes to database
         self.DATABASE_CON.commit()
 
         print("[Success] Removed user from database")
-
-        # Return cursor
-        return cursor

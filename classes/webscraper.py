@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 class WebScraper:
 
-    def get_deals(self,tracker: Tracker):
+    def get_deals(self, tracker: Tracker):
         print("Running query: ", tracker.url)
         soup = BeautifulSoup(requests.get(tracker.url).text, 'html.parser')
         PRODUCT_INFO_HTML_CLASS = "_3aiCi"
