@@ -194,11 +194,6 @@ class TelegramBot:
                 print("[Info] New deals detected")
                 new.reverse()
                 new_deals = new[len(old):len(new)]
-<<<<<<< HEAD
-=======
-                pprint(new_deals)
-                return new_deals
->>>>>>> 9356d9cd85718b52effa301f9ec0666cf9f0eb28
 
                 new_deals.reverse()
                 return new_deals
