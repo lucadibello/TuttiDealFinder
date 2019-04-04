@@ -25,5 +25,11 @@ CREATE TABLE deal(
   location_cap int(4) NOT NULL,
   upload_date VARCHAR(50) NOT NULL,
   url TEXT NOT NULL,
+<<<<<<< HEAD
   PRIMARY KEY (id,user_id)
+=======
+  PRIMARY KEY (id,tracker_id),
+  FOREIGN KEY (tracker_id) REFERENCES tracker(tracker_id)
+  ON DELETE CASCADE
+>>>>>>> 9356d9cd85718b52effa301f9ec0666cf9f0eb28
 );
