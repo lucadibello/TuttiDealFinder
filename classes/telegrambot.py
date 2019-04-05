@@ -24,7 +24,7 @@ class TelegramBot:
 
     def start_bot(self):
 
-        updater = Updater(self.TOKEN)
+        updater = Updater(self.TOKEN,use_context=True)
 
         # Get the dispatcher to register handlers
         self.DP = updater.dispatcher
